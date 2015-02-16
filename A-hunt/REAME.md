@@ -1,4 +1,6 @@
-# A-hunt is a tool to collect IR data from Android devices 
+# A-hunt 
+
+A tool to collect IR data from Android devices 
 
 Prerequisites:
 
