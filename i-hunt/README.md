@@ -1,12 +1,14 @@
 Prerequisites:
 
 	Following are the prerequisites for i-hunt.py
+		
 		1- Jail-broken iDevice
 		2- Open SSH package installed from Cydia store
 		3- RSA/DSA key pair 
 
 How to use i-hunt:
-	Make sure that device is unlocked and Auto-Lock option in Settings is set to Never or maximum
+
+	Make sure that device is unlocked (it is recommended that Auto-Lock option in Settings is set to Never or maximum)
 
 	e.g: python i-hunt.py
 
