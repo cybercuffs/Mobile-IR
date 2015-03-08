@@ -30,7 +30,6 @@ abspath = os.path.abspath(drname)
 directory = os.path.dirname(file)
 abspath = os.path.abspath(directory)
 fullpath = os.path.join(abspath, dirname)
-#os.mkdir(fullpath, 0755)
 
 # Finding IR_BINARIES folder
 IRBINpath = os.path.join(abspath, "IR_BINARIES")
@@ -51,6 +50,7 @@ try:
 except socket.error as e:
     print red.format("[+] Error: %s" % e)
     exit()
+s.shutdown(2)
 s.close()
 
 
@@ -98,8 +98,7 @@ def IR():
 
 def sshupload():
 
-	# Uploading SSH key to the device to prevent entering passwords repeatedly
-
+	# Uploading SSH key to the device to prevent entering passwords repeatedly.
 	print aqua.format("[+] Copying the public key to the device with the name authorized_keys at /var/root/.ssh/")
 	keyupld = Popen(['scp', keypath, host + ':/var/root/.ssh/authorized_keys'], stdout=PIPE, stderr=PIPE)
 	keyupld.wait()
@@ -115,7 +114,6 @@ def sshupload():
 def logcollect():
 
 	# Creating Otherlog folder to save other log files from the device
-	
 	os.mkdir(fullpath + '/Otherlogs', 0755)
 	otherlog = os.path.join(fullpath, 'Otherlogs')
 
