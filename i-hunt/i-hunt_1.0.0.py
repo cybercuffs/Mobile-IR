@@ -61,39 +61,37 @@ def IR():
 	BINupld = Popen(['scp', '-r', IRBINpath, host + ':/usr/sbin/'], stdout=PIPE, stderr=PIPE)
 	BINupld.wait()
 	
-	result = repr(BINupld.stderr.readline())
-	
-	# Print result
-	if result == "''":
-		print green.format("[+] Binaries uploaded")
-	else:
+	result = str(BINupld.stderr.read())
+	if result:
 		print ('Error: %s' % result)
 		exit()
-
+	else:
+		print green.format("[+] Binaries uploaded")
 	# Creating Livelog folder 
 	os.chdir(fullpath)
 	os.mkdir(fullpath + '/Livelogs', 0755)
 	IRdata = os.path.join(fullpath, 'Livelogs')
 
 	ir = '/usr/sbin/IR_BINARIES/'
-	cmd = ['who', 'date', 'uname -a', 'arp -a', 'df', 'ifconfig', 'pstree', 'lsof', 'netstat', 'ps', 'uptime', 'hostinfo']
+	cmd = ['who', 'date', 'uname -a', 'arp -a', 'df', 'ifconfig', 'pstree', 'lsof', 'netstat', 'ps aux -eo pid,user,group,args,etime,lstart', 'uptime', 'hostinfo']
 	move = 'mv /usr/sbin/IR_BINARIES/libpcap* /usr/lib/'
 
 	# Moving the lipcap libraries in the default location /usr/lib for tcpdump binary that can be run manually by the user
 	ssh = subprocess.Popen(["ssh", host, move], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	ssh.wait()
-	result = repr(ssh.stderr.readline())
-
-	if result != "''":
+	result = str(ssh.stderr.read())
+	
+	if result:
 		print red.format('Error: %s' % result)
 
 	# Running the uploaded binaries
 	for x in cmd:
 		print x
 		ssh = subprocess.Popen(["ssh", host, ir + x], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		result = str(ssh.stdout.readlines())
+		result = str(ssh.stdout.read())
 		f = open(IRdata + '/' + x, 'w')
 		f.write (result)
+		ssh.stdout.flush()
 		f.close()
 
 def sshupload():
@@ -102,14 +100,13 @@ def sshupload():
 	print aqua.format("[+] Copying the public key to the device with the name authorized_keys at /var/root/.ssh/")
 	keyupld = Popen(['scp', keypath, host + ':/var/root/.ssh/authorized_keys'], stdout=PIPE, stderr=PIPE)
 	keyupld.wait()
-	result = repr(keyupld.stderr.readline())
+	result = str(keyupld.stderr.read())
 	
-	if result == "''":
-		print green.format("[+] Public key uploaded")
-	else:
+	if result:
 		print red.format('Error: %s' % result)
 		exit()
-
+	else:
+		print green.format("[+] Public key uploaded")
 
 def logcollect():
 
@@ -136,12 +133,12 @@ def logcollect():
 
 	logfile = Popen(['scp', '-r','-C', '-p', host+':{'+path1+','+path2+','+path3+','+path4+','+path5+','+path6+','+path7+','+path8+','+path9+','+path10+','+path11+','+path12+','+path13+','+path14+'}', otherlog+'/'], stdout=PIPE, stderr=PIPE)
 	logfile.wait()
-	result = repr(logfile.stderr.readline())
+	result = str(logfile.stderr.read())
 
-	if result == "''":
-		print green.format("[+] Log files copied")
-	else:
+	if result:
 		print red.format('Error: %s' % result)
+	else:
+		print green.format("[+] Log files copied")
 	
 	print green.format("[+] Note: tcpdump has not been run by the script but the binary and libraries have been copied. You can run it manually, the binary is in the /usr/sbin/IR_BINARIES folder on the device\n")
 	raise SystemExit(aqua.format("[+] Finished"))
@@ -169,12 +166,12 @@ if __name__ == "__main__":
 			print green.format("[+] Checking if .ssh directory exists already")
 			dirtest = subprocess.Popen(["ssh", host, 'cd /var/root/.ssh'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			
-			result = repr(dirtest.stderr.readline())
+			result = str(dirtest.stderr.read())
 
-			if result == "''":
-					print green.format("[+] .ssh is already present")
+			if result:
+				print red.format('Error: %s' % result)
 			else:
-	    			print red.format('Error: %s' % result)
+				print green.format("[+] .ssh is already present")
 	    		
 	    			print green.format("[+] Looks like .ssh is not found, creating one now")	
 				ssh2 = subprocess.Popen(["ssh", host, 'mkdir -m 700 /var/root/.ssh'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -184,8 +181,4 @@ if __name__ == "__main__":
 			
 		IR()
 		logcollect()
-
-
-
-
 
